@@ -14,6 +14,6 @@ def search(request):
         # to dictionary and append it
         data['result'] = output
 
-    return render(request,'search_stock/search.html',context=data)
+    return render(request,'search/search.html',context=data)
 
 # other views
