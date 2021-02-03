@@ -1,3 +1,4 @@
 .env
 /stockread/.env
 project_timeline.txt
+__pycache__/
