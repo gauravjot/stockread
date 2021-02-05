@@ -14,6 +14,7 @@ import yfinance as yf
 import pandas as pd
 import json
 import datetime
+from datetime import timezone
 
 class Stock:
 
@@ -37,7 +38,7 @@ class Stock:
             inner_date_price_cleansed_dict = {}
             for index, date in enumerate(df[col]):
                 # date and price loop
-                cleansed_date = datetime.datetime.fromtimestamp(int(date[:-3])).strftime('%Y-%m-%d')
+                cleansed_date = datetime.datetime.fromtimestamp(int(date[:-3]),tz=timezone.utc).strftime('%Y-%m-%d')
                 cleansed_price = str("%.2f") % df[col][date]
                 inner_date_price_cleansed_dict[index] = cleansed_price
                 if (col == 'Open'):
