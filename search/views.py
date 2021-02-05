@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .utils import search_symbol
+from core.objects.stock import Stock
 
 # Create your views here.
 
@@ -9,10 +9,10 @@ def search(request):
     data = {}
 
     if request.method == 'POST':
-        output = search_symbol(request.POST.get("symbol"))
+        output = Stock(request.POST.get("symbol"))
         # since output json is in format of list we need to convert it
         # to dictionary and append it
-        data['result'] = output
+        data = output.all_data('1mo')
 
     return render(request,'search/search.html',context=data)
 
