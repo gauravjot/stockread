@@ -9,3 +9,9 @@ The webapp pulls data for stocks for NYSE, NASDAQ, TSX and more.
 * Django            3.1.6
 
 * Python            3.8.7
+
+## Screenshots
+
+![Home](screenshot/home.png)
+
+![Search](screenshot/search.png)
