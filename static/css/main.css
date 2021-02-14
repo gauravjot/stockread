@@ -1,0 +1,14 @@
+.form-max-w {
+    max-width: 30rem;
+    margin: auto;
+}
+
+.baseline-icon {
+    vertical-align: baseline;
+    width: 16px;
+    height: 16px;
+}
+
+.fnt-sm {
+    font-size: 0.9rem;
+}

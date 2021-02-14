@@ -20,6 +20,10 @@ class Stock:
 
     def __init__(self, symbol):
         # symbol = TSLA, AMZN etc
+        if (bool(symbol) == False):
+            # empty variable
+            symbol = 'TSLA'
+
         self.symbol = symbol
         self.stock = yf.Ticker(self.symbol)
 
@@ -32,18 +36,18 @@ class Stock:
         # the data we have from API has date in epoch form
         # also, we have to round the price to two decimal places
         cleansed_dict = {}
-        dates_dict = {}
+        dates_dict = []
         for col in df:
             # open, close, high, low ... loop
-            inner_date_price_cleansed_dict = {}
+            inner_date_price_cleansed_dict = []
             for index, date in enumerate(df[col]):
                 # date and price loop
                 cleansed_date = datetime.datetime.fromtimestamp(int(date[:-3]),tz=timezone.utc).strftime('%Y-%m-%d')
                 cleansed_price = str("%.2f") % df[col][date]
-                inner_date_price_cleansed_dict[index] = cleansed_price
+                inner_date_price_cleansed_dict.append(cleansed_price)
                 if (col == 'Open'):
                     # we will add index as key to dates as value
-                    dates_dict[index] = cleansed_date
+                    dates_dict.append(cleansed_date)
             cleansed_dict[col.lower()] = inner_date_price_cleansed_dict
         cleansed_dict['date'] = dates_dict
 

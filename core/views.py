@@ -4,6 +4,6 @@ from django.shortcuts import render
 
 # main view
 def core(request, *args,**kwargs):
-    return render(request, 'core/core.html', {})
+    return render(request, 'index.html', {})
 
 # other views

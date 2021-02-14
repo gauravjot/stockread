@@ -1,26 +1,150 @@
-<div>
-    Search:
-</div>
-<div>
-    <form method="POST" action="/search/">
-        {% csrf_token %}
-        <input type="text" name="symbol"/>
-        <br/>
-        <input type="submit" name="search" value="Search"/>
-    </form>
-</div>
-<div>
-    <p>{{info.zip}}</p>
-    <table>
-        <tr>
-        {% for key, value in history.items %}
-            <td style="padding:10px; border-right:1px grey solid">
-                {{key}}
-                {% for key2, value2 in value.items %}
-                    <p>{{value2}}</p>
-                {% endfor %}
-            </td>
-        {% endfor %}
-        </tr>  
-    </table>
-</div>
+{% extends "../core/base.html" %}
+{% load core_tags %}
+{% load static %}
+
+{% block title %}{{info.shortName}} - Stockread{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-light mt-5 mb-3">
+        <div class="container-fluid">
+            <a href="../" class="navbar-brand">Stockread</a>
+            <form class="d-flex" method="POST" action="/search/">
+                {% csrf_token %}
+                <input type="text" name="symbol" class="form-control me-2" placeholder="{{info.symbol}}">
+                <input type="submit" name="search" class="btn btn-outline-primary" value="Search"/>
+            </form>
+        </div>
+    </nav>
+    
+    {% with last_day_price=history.close|slice:"-2:"|first %}
+    {% with change=history.close|last|subtract:last_day_price %}
+    <section id="info" class="px-1">
+        <div class="p-2">
+            <span class="fw-bold fs-4">{{info.shortName}}</span> <span class="fw-light fs-5">({{info.symbol}}) - {{info.quoteType}}</span>
+            <div>
+                <span>Currency in {{info.currency}}. {{info.exchange}} Exchange. Market Cap: {{info.marketCap}}</span>
+            </div>
+            <div>
+                <span class="fs-2 fw-bold"><b>{{history.close|last}}</b></span>
+                <span class="fs-5">&nbsp;
+                {% if change > 0 %}
+                    <span style="color:green"><img src="{% static '/images/up.png' %}" class="baseline-icon"/> {{change}}</span>
+                {% elif change == 0 %}
+                    <span style="color:grey">{{change|positive}}</span>
+                {% else %}
+                    <span style="color:red"><img src="{% static '/images/down.png' %}" class="baseline-icon"/> {{change|positive}}</span>
+                {% endif %}
+                </span>
+            </div>
+
+        <span class="fnt-sm">(<a href="https://finance.yahoo.com/quote/{{info.symbol}}" class="text-decoration-none" target="_blank">View on Yahoo Finance</a>)</span>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-12">
+                <div class="py-3 px-2">
+                    TODAY - <span class="fw-bolder fm">{{ history.close|last|percentChange:last_day_price }}%</span>
+                    <div class="p-2">
+                        <div class="row">
+                            <div class="col-6">
+                                H: <span class="fw-bold fm">{{info.dayHigh}}</span>
+                            </div>
+                            <div class="col-6">
+                                L: <span class="fw-bold fm">{{info.dayLow}}</span>
+                            </div>
+                        </div>
+                        <div class="pt-1"></div>
+                        Volume: <span class="fw-bold fm">{{info.volume24Hr}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12">
+                <div class="py-3 px-2">
+                    <span class="text-uppercase">PAST</span>
+                    <div class="row p-2">
+                        <div class="col-lg-8 col-sm-12 pb-2">
+                            <div class="row">
+                                <div class="col-6">
+                                    52 Week H: <span class="fw-bolder fm">{{info.fiftyTwoWeekHigh}}</span>
+                                </div>
+                                <div class="col-6">
+                                    52 Week L: <span class="fw-bolder fm">{{info.fiftyTwoWeekLow}}</span>
+                                </div>
+                            </div>
+                            <div class="pt-1"></div>
+                            Dividend Yield (%): <span class="fw-bolder fm">{{info.dividendYield|multiply:100}}</span>
+                        </div>
+                        <div class="col-lg-4 col-sm-12">
+                            50 Day Avg: &nbsp;&nbsp; <span class="fw-bolder fm">{{info.fiftyDayAverage|floatRoundup}}</span>
+                            <div class="pt-1"></div>
+                            200 Day Avg:&nbsp; <span class="fw-bolder fm">{{info.twoHundredDayAverage|floatRoundup}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-12">
+                <div class="py-3 px-2">
+                    <span class="fw-normal">Volume</span>
+                    <div class="p-2">
+                        10 Day Avg: &nbsp;&nbsp;<span class="fw-bolder fm">{{info.averageVolume10days}}</span>
+                        <div class="pt-1"></div>
+                        Overall Avg: &nbsp; <span class="fw-bolder fm">{{info.averageVolume}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="px-2">{{info.longBusinessSummary}}</p>
+
+        <div class="p-2">
+            <div class="fs-4 pb-3">Historic Data</div>
+            <div class="row fnt-sm text-muted fw-bold border-bottom border-2 pb-1">
+                <div class="col-sm-3">Date</div>
+                <div class="col-sm-9">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <span class="float-end">Open</span>
+                        </div>
+                        <div class="col-sm-3">
+                            <span class="float-end">Close</span>
+                        </div>
+                        <div class="col-sm-3">
+                            <span class="float-end">High</span>
+                        </div>
+                        <div class="col-sm-3">
+                            <span class="float-end">Low</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% for date in history.date %}
+                <div class="row border-bottom py-2">
+                    {% with index=forloop.revcounter0 %}
+                    {% with dt=history.date|listIndex:index %}
+                    <div class="col-sm-3">{{dt|readableDate}}</div>
+                    <div class="col-sm-9">
+                        <div class="row">
+                            <div class="col-sm-3 fm">
+                                <span class="float-end">{{history.open|listIndex:index}}</span>
+                            </div>
+                            <div class="col-sm-3 fm">
+                                <span class="float-end">{{history.close|listIndex:index}}</span>
+                            </div>
+                            <div class="col-sm-3 fm">
+                                <span class="float-end">{{history.high|listIndex:index}}</span>
+                            </div>
+                            <div class="col-sm-3 fm">
+                                <span class="float-end">{{history.low|listIndex:index}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endwith %}
+                </div>
+            {% empty %}
+            <div class="p-2">Sorry, no historical data present for this asset.</div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endwith %}
+    {% endwith %}
+
+{% endblock %}
