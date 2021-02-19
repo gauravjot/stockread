@@ -33,6 +33,6 @@ def multiply(arg1, arg2):
     try:
         arg1 = float(arg1)
         return float_roundup(arg1 * arg2)
-    except ValueError:
+    except (ValueError,TypeError):
         return "None"
         
